@@ -13,4 +13,4 @@ namespace EasyAbp.IdentityServerAdmin.Web.Pages
             ObjectMapperContext = typeof(IdentityServerAdminWebModule);
         }
     }
-}      
+} 

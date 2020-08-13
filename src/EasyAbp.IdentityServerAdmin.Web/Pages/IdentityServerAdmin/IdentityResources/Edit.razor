@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IObjectMapper ObjectMapper
 @inject IOptions<IdentityServerAdminOptions> IdentityServerAdminOptions
- @attribute [Authorize(IdentityServerAdminPermissions.IdentityResource.Update)]
+@attribute [Authorize(IdentityServerAdminPermissions.IdentityResource.Update)]
 <Card>
     <CardBody>
         @if (model != null)
