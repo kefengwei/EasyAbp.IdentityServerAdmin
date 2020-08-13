@@ -1,0 +1,143 @@
+﻿@page "/Clients/Add"
+@inject IClientAppService ClientsService
+@inject NavigationManager NavigationManager
+@attribute [Authorize(IdentityServerAdminPermissions.Client.Create)]
+<Card>
+    <CardBody>
+        <Button>
+            <NavLink href="/IdentityServer/Clients">Go Back</NavLink>
+        </Button>
+    </CardBody>
+</Card>
+<br />
+
+@if (create != null)
+{
+    <Card>
+        <CardBody>
+            <Validations @ref="validations"
+            Model="create"
+            Mode="ValidationMode.Manual"
+            >
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3" >ClientId</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                        <TextEdit @bind-Text="create.ClientId">
+                            <Feedback>
+                                <ValidationError/>
+                            </Feedback>
+                        </TextEdit>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3" >ClientName</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                        <TextEdit @bind-Text="create.ClientName">
+                            <Feedback>
+                                <ValidationError/>
+                            </Feedback>
+                        </TextEdit>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3" >ClientUri</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                        <TextEdit @bind-Text="create.ClientUri">
+                            <Feedback>
+                                <ValidationError/>
+                            </Feedback>
+                        </TextEdit>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3" >LogoUri</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                        <TextEdit @bind-Text="create.LogoUri">
+                            <Feedback>
+                                <ValidationError/>
+                            </Feedback>
+                        </TextEdit>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3" >LogoutUri</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                        <TextEdit @bind-Text="create.LogoutUri">
+                            <Feedback>
+                                <ValidationError/>
+                            </Feedback>
+                        </TextEdit>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                 <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3" >Description</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                        <MemoEdit @bind-Text="create.Description">
+                            <Feedback>
+                                <ValidationError/>
+                            </Feedback>
+                        </MemoEdit>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3" >ClientType</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                           <RadioGroup Name="ClientTypesName"
+                                    @bind-CheckedValue="create.ClientType">
+                            @foreach (var clientType in Enum.GetValues(typeof(ClientType)))
+                                {
+                                <Radio Value="@clientType"
+                                        Group="ClientTypesName">@Enum.GetName(typeof(ClientType), clientType) &nbsp;</Radio>
+                                    }
+                          </RadioGroup>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+            <div class="form-group row">
+                <div class="col-sm-9 offset-sm-3">
+                    <Button
+                        Color="Color.Primary"
+                        Type="ButtonType.Submit"
+                        Loading="isAdding"
+                        Clicked="HandleValidatedAll"
+                        >Add</Button>
+                    <Button Color="Color.Info" Type="ButtonType.Reset">Clear</Button>
+                </div>
+            </div>
+        </Validations>
+        </CardBody>
+    </Card>
+}
+
+@code {
+    private CreateClientInputDto create = new CreateClientInputDto();
+    private string ClientTypesName = "ClientTypes";
+    private bool isAdding = false;
+    private Validations validations;
+
+    private async Task HandleValidatedAll()
+    {
+      await Task.CompletedTask;
+      if (validations.ValidateAll())
+      {
+        isAdding = true;
+        await ClientsService.CreateAsync(create);
+        isAdding = false;
+        create = new CreateClientInputDto();
+        NavigationManager.NavigateTo("/IdentityServer/Clients");
+      }
+    }
+}

@@ -1,0 +1,403 @@
+﻿@page "/Clients/{Id:guid}/Edit"
+
+@inject IClientAppService ClientsService
+@inject IObjectMapper ObjectMapper
+@inject NavigationManager NavigationManager
+@attribute [Authorize(IdentityServerAdminPermissions.Client.Update)]
+
+@if (_client != null)
+{
+    <EditForm Model="model" OnSubmit="HandleOnSubmit">
+        <Tabs @bind-SelectedTab="selectedTab">
+            <Items>
+                <Tab Name="basic">Basic</Tab>
+                <Tab Name="settings">Settings</Tab>
+                <Tab Name="authentication">Authentication</Tab>
+                <Tab Name="token">Token</Tab>
+                <Tab Name="deviceFlow">DeviceFlow</Tab>
+            </Items>
+            <Content>
+                <TabPanel Name="basic" Class="m-2">
+                    <div class="form-group row">
+                        <label class="col-sm-3">Name</label>
+                        <div class="col-sm-9">
+                            <TextEdit @bind-Text="_client.ClientName"></TextEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Description</label>
+                        <div class="col-sm-9 ">
+                            <MemoEdit @bind-Text="_client.Description" Rows="5" />
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Client Uri</label>
+                        <div class="col-sm-9 ">
+                            <TextEdit @bind-Text="_client.ClientUri" Rows="5" />
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Logo Uri</label>
+                        <div class="col-sm-9 ">
+                            <TextEdit @bind-Text="_client.LogoUri" Rows="5" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3">Allowed Cors Origins</label>
+                        <div class="col-sm-9">
+                            <TagsInput @bind-Tags="_client.AllowedCorsOrigins" Placeholder="Add Allowed Cors Origins"></TagsInput>
+
+                        </div>
+
+                    </div>
+
+                </TabPanel>
+                <TabPanel Name="settings" Class="m-2">
+                    <div class="form-group row">
+                        <label class="col-sm-3">Enabled</label>
+                        <div class="col-sm-9">
+                            <Switch @bind-Checked="_client.Enabled"></Switch>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Allowed Scopes</label>
+                        <div class="col-sm-9">
+                            <TagsInput @bind-Tags="_client.AllowedScopes" Placeholder="Add Scope"></TagsInput>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Redirect Uri's</label>
+                        <div class="col-sm-9">
+                            <TagsInput @bind-Tags="_client.RedirectUris" Placeholder="Add Url"></TagsInput>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Client Secrets</label>
+                        <div class="col-sm-9">
+                            <ClientSecrets @bind-ClientSecretList="_client.ClientSecrets"></ClientSecrets>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Allowed Grant Types</label>
+                        <div class="col-sm-9">
+                            <TagsInput @bind-Tags="_client.AllowedGrantTypes" Placeholder="Add Grant" Options="GrantTypeOptions"></TagsInput>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Require Consent Screen</label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.RequireConsent"></Check>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Remember Consent</label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.AllowRememberConsent"></Check>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Allow Offline Access</label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.AllowOfflineAccess"></Check>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Require Client Secret </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.RequireClientSecret"></Check>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3">Protocol Type </label>
+                        <div class="col-sm-9">
+
+                            <Select @bind-SelectedValue="_client.ProtocolType">
+                                <SelectItem Value="@("oidc")">oidc</SelectItem>
+                            </Select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Require Pkce </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.RequirePkce"></Check>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Allow Plain Text Pkce </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.AllowPlainTextPkce"></Check>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Allow Access Token Via Browser </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.AllowAccessTokensViaBrowser"></Check>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Properties</label>
+                        <div class="col-sm-9">
+                            <ClientProperties @bind-PropertyList="_client.Properties"></ClientProperties>
+                        </div>
+                    </div>
+
+
+                </TabPanel>
+                <TabPanel Name="authentication" Class="m-2">
+                    <div class="form-group row">
+                        <label class="col-sm-3">Enable Local Login </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.EnableLocalLogin"></Check>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Identity Provider Restrictions </label>
+                        <div class="col-sm-9">
+                            <TagsInput @bind-Tags="_client.IdentityProviderRestrictions" Placeholder="Add new tag"></TagsInput>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Logout Url </label>
+                        <div class="col-sm-9">
+                            <TagsInput @bind-Tags="_client.PostLogoutRedirectUris" Placeholder="Add New Url"></TagsInput>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Front Channel Logout Uri </label>
+                        <div class="col-sm-9">
+                            <TextEdit @bind-Text="_client.FrontChannelLogoutUri" Placeholder="Specifies logout URI at client for HTTP based front-channel logout. See the OIDC Front-Channel spec for more details"></TextEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Front Channel Logout Session </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.FrontChannelLogoutSessionRequired"></Check>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3">Back Channel Logout Uri </label>
+                        <div class="col-sm-9">
+                            <TextEdit @bind-Text="_client.BackChannelLogoutUri" Placeholder="Specifies logout URI at client for HTTP based back-channel logout. See the OIDC Back-Channel spec for more details"></TextEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Back Channel Logout Session </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.BackChannelLogoutSessionRequired"></Check>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">User Sso Lifetime </label>
+                        <div class="col-sm-9">
+                            <NumericEdit @bind-Value="_client.UserSsoLifetime" Placeholder="The maximum duration (in seconds) since the last time the user authenticated. Defaults to null. You can adjust the lifetime of a session token to control when and how often a user is required to reenter credentials instead of being silently authenticated, when using a web application"></NumericEdit>
+                        </div>
+                    </div>
+                </TabPanel>
+                <TabPanel Name="token" Class="m-2">
+                    <div class="form-group row">
+                        <label class="col-sm-3">Identity Token Lifetime</label>
+                        <div class="col-sm-9">
+                            <NumericEdit @bind-Value="_client.IdentityTokenLifetime"></NumericEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Access Token Lifetime</label>
+                        <div class="col-sm-9">
+                            <NumericEdit @bind-Value="_client.AccessTokenLifetime"></NumericEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Access Token Type</label>
+                        <div class="col-sm-9">
+                            <Select @bind-SelectedValue="_client.AccessTokenType">
+                                @foreach (var accessTokenType in Enum.GetValues(typeof(IdentityServer4.Models.AccessTokenType)))
+                                    {
+                                    <SelectItem Value="accessTokenType">@Enum.GetName(typeof(IdentityServer4.Models.AccessTokenType), accessTokenType)</SelectItem>
+                                    }
+                            </Select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Authorization Code Lifetime</label>
+                        <div class="col-sm-9">
+                            <NumericEdit @bind-Value="_client.AuthorizationCodeLifetime"></NumericEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Absolute Refresh Token Lifetime</label>
+                        <div class="col-sm-9">
+                            <NumericEdit @bind-Value="_client.AbsoluteRefreshTokenLifetime"></NumericEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Sliding Refresh Token Lifetime</label>
+                        <div class="col-sm-9">
+                            <NumericEdit @bind-Value="_client.SlidingRefreshTokenLifetime"></NumericEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Refresh Token Usage</label>
+                        <div class="col-sm-9">
+                            <Select @bind-SelectedValue="_client.RefreshTokenUsage">
+                                <SelectItem Value="0">One Time Only</SelectItem>
+                                <SelectItem Value="1">Reuse</SelectItem>
+                            </Select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Refresh Token Expiration</label>
+                        <div class="col-sm-9">
+                            <Select @bind-SelectedValue="_client.RefreshTokenExpiration">
+                                <SelectItem Value="0">Absolute</SelectItem>
+                                <SelectItem Value="1">Sliding</SelectItem>
+                            </Select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Update Access Token Claims On Refresh </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.UpdateAccessTokenClaimsOnRefresh"></Check>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Include Jwt Id </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.IncludeJwtId"></Check>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3">Always Send Client Claims </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.AlwaysSendClientClaims"></Check>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3">Always Include User Claims In IdToken </label>
+                        <div class="col-sm-9">
+                            <Check @bind-Checked="_client.AlwaysIncludeUserClaimsInIdToken"></Check>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3">Pair Wise Subject Salt </label>
+                        <div class="col-sm-9">
+                            <TextEdit @bind-Value="_client.PairWiseSubjectSalt" Placeholder="Salt value used in pair-wise subjectId generation for users of this client."></TextEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Client Claims Prefix </label>
+                        <div class="col-sm-9">
+                            <TextEdit @bind-Value="_client.ClientClaimsPrefix"></TextEdit>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3">Claims</label>
+                        <div class="col-sm-9">
+                            <ClientClaims @bind-ClaimList="_client.Claims"></ClientClaims>
+                        </div>
+                    </div>
+                </TabPanel>
+                <TabPanel Name="deviceFlow" Class="m-2">
+                    <div class="form-group row">
+                        <label class="col-sm-3">User Code Type </label>
+                        <div class="col-sm-9">
+                            <TextEdit @bind-Value="_client.UserCodeType" Placeholder="Specifies the type of user code to use for the client. Otherwise falls back to default"></TextEdit>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3">Device Code Lifetime</label>
+                        <div class="col-sm-9">
+                            <NumericEdit @bind-Value="_client.DeviceCodeLifetime"></NumericEdit>
+                        </div>
+                    </div>
+                </TabPanel>
+            </Content>
+
+        </Tabs>
+        <div class="mt-2">
+            <Button Color="Color.Primary"
+                    Type="ButtonType.Submit"
+                    Loading="isSaving"
+                    >Save</Button>
+            <Button Color="Color.Info" Clicked="@(() => { NavigationManager.NavigateTo("Clients"); })">
+                Cancel
+            </Button>
+        </div>
+    </EditForm>
+}
+else
+{
+    if (isLoading)
+    {
+        <h3>Loading...</h3>
+    }
+    else
+    {
+        <h3> @Id Not Found</h3>
+    }
+}
+
+
+@code {
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private ClientDto _client { get; set; }
+    private UpdateClientInputDto model { get; set; }
+    private string ToAddGrantType { get; set; }
+    private string ToAddScope { get; set; }
+    private string selectedTab { get; set; } = "basic";
+    private bool isLoading = false;
+    private bool isSaving = false;
+
+    private List<string> GrantTypeOptions = new List<string>() {
+    IdentityServer4.Models.GrantType.AuthorizationCode,
+    IdentityServer4.Models.GrantType.ClientCredentials,
+    IdentityServer4.Models.GrantType.DeviceFlow,
+    IdentityServer4.Models.GrantType.Hybrid,
+    IdentityServer4.Models.GrantType.Implicit,
+    IdentityServer4.Models.GrantType.ResourceOwnerPassword
+
+    };
+
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        await base.SetParametersAsync(parameters);
+    }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        _client = null;
+        _client = await ClientsService.GetAsync(Id);
+        MapToUpdateModel(_client);
+        isLoading = false;
+    }
+
+    private async Task HandleOnSubmit(EditContext editContext)
+    {
+        await Task.CompletedTask;
+        isSaving = true;
+        _client = await ClientsService.UpdateAsync(_client.Id, model);
+        MapToUpdateModel(_client);
+        isSaving = false;
+
+    }
+    private void MapToUpdateModel(ClientDto client)
+    {
+        model = ObjectMapper.Map<ClientDto, UpdateClientInputDto>(client);
+
+    }
+
+}

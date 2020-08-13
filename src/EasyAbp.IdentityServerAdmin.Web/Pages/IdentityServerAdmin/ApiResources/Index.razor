@@ -1,0 +1,115 @@
+﻿@page "/ApiResources"
+@inject IApiResourceAppService ApiResourceService
+@inject IOptions<IdentityServerAdminOptions> IdentityServerAdminOptions
+@inject IAuthorizationService AuthorizationService
+@attribute [Authorize(IdentityServerAdminPermissions.ApiResource.Manage)]
+
+
+<Table
+    Striped="true"
+    Bordered="true"
+    ThemeContrast="ThemeContrast.Dark"
+    Hoverable="true">
+    <TableHeader>
+        <TableRow>
+            <TableHeaderCell>Name</TableHeaderCell>
+            <TableHeaderCell>DisplayName</TableHeaderCell>
+            <TableHeaderCell>Discription</TableHeaderCell>
+            <TableHeaderCell>Action</TableHeaderCell>
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        @if (_apiResources?.Items != null)
+        {
+            @foreach (var apiResource in _apiResources.Items)
+            {
+                <TableRow>
+                    <TableRowHeader>
+                        @apiResource.Name
+                    </TableRowHeader>
+                    <TableRowCell>
+                        @apiResource.DisplayName
+                    </TableRowCell>
+                    <TableRowCell>
+                        @apiResource.Description
+                    </TableRowCell>
+                    <TableRowCell>
+                        @if (haveUpdatePermission)
+                        {
+                            <Button Color="Color.Primary"
+                                    Size="ButtonSize.Small">
+                                <NavLink href=@($"ApiResources/{apiResource.Id}/Edit")>
+                                    <Icon Name="@("fa-cog")" Style="color: white;"/>
+                                </NavLink>
+                            </Button>
+                        }
+                        @if (haveDeletePermission)
+                        {
+                            <Button Color="Color.Danger"
+                                    Size="ButtonSize.Small"
+                                    Clicked="async () => { await Delete(apiResource.Id); }">
+                                <Icon Name="IconName.Times"/>
+                            </Button>
+                        }
+                    </TableRowCell>
+                </TableRow>
+            }
+        }
+
+    </TableBody>
+</Table>
+
+<PaginationWrapper TotalCount="TotalCount" DefaultPageSize="PageSize" PaginationChanged="HandlePaginationChanged"></PaginationWrapper>
+
+
+@code {
+    private PagedResultDto<ApiResourceDto> _apiResources = new PagedResultDto<ApiResourceDto>();
+    private GetApiResourceListInput _filter = new GetApiResourceListInput();
+
+    private int PageSize => IdentityServerAdminOptions.Value.DefaultPageSize;
+    private long TotalCount => _apiResources?.TotalCount ?? 0;
+    private bool haveDeletePermission = false;
+    private bool haveUpdatePermission = false;
+
+    protected override void OnInitialized()
+    {
+        _filter.MaxResultCount = PageSize;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        haveDeletePermission = await AuthorizationService.IsGrantedAsync(IdentityServerAdminPermissions.ApiResource.Delete);
+        haveUpdatePermission = await AuthorizationService.IsGrantedAsync(IdentityServerAdminPermissions.ApiResource.Update);
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await RefreshList();
+            StateHasChanged();
+        }
+    }
+
+    private async Task Delete(Guid id)
+    {
+        await Task.CompletedTask;
+        await ApiResourceService.DeleteAsync(id);
+        await RefreshList();
+    }
+
+    private async Task HandlePaginationChanged(PaginationChangeArgs args)
+    {
+        _filter.SkipCount = (args.PageIndex - 1) * args.PageSize;
+        _filter.MaxResultCount = args.PageSize;
+        await RefreshList();
+    }
+
+    private async Task RefreshList()
+    {
+        _apiResources = await ApiResourceService.GetListAsync(_filter);
+    }
+
+}

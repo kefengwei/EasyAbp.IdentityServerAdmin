@@ -1,0 +1,136 @@
+﻿@page "/PersistedGrants"
+@using EasyAbp.IdentityServerAdmin.PersistedGrants
+@using EasyAbp.IdentityServerAdmin.PersistedGrants.Dtos
+@using Volo.Abp.Application.Dtos
+@inject IPersistedGrantAppService PersistedGrantAppService
+@inject IOptions<IdentityServerAdminOptions> IdentityServerAdminOptions
+@inject IAuthorizationService AuthorizationService
+@attribute [Authorize(IdentityServerAdminPermissions.PersistedGrant.Manage)]
+
+@if (_persistedGrants?.Items != null && _persistedGrants.Items.Count > 0)
+{
+    <Table Striped="true" Bordered="true" Hoverable="true">
+        <TableRow>
+            <TableHeader>
+                <TableHeaderCell></TableHeaderCell>
+                <TableHeaderCell>CreationTime</TableHeaderCell>
+                <TableHeaderCell>Client</TableHeaderCell>
+                <TableHeaderCell>Type</TableHeaderCell>
+                <TableHeaderCell></TableHeaderCell>
+            </TableHeader>
+            <TableBody>
+
+                @foreach (var persistedGrant in _persistedGrants.Items)
+                {
+                    <TableRow>
+                        <TableRowCellHeader>
+                            <Button Color="Color.Primary" Clicked="() => { selected = persistedGrant; }">
+                                <Icon Name="IconName.Info"></Icon>
+                            </Button>
+                        </TableRowCellHeader>
+                        <TableRowCell>@persistedGrant.CreationTime</TableRowCell>
+                        <TableRowCell>@persistedGrant.ClientId</TableRowCell>
+                        <TableRowCell>@persistedGrant.Type</TableRowCell>
+                        <TableRowCell>
+                            @if (haveDeletePermission)
+                            {
+                                <Button Color="Color.Danger" Clicked="async () => { await Delete(persistedGrant.Id); }">
+                                    <Icon Name="IconName.Times"/>
+                                </Button>
+                            }
+                        </TableRowCell>
+                    </TableRow>
+                }
+
+            </TableBody>
+        </TableRow>
+    </Table>
+}
+else
+{
+    <p class="text-center">No item!</p>
+}
+
+<br/>
+
+@if (selected != null)
+{
+    <Card>
+        <CardHeader>Details - @selected.ClientId</CardHeader>
+    </Card>
+    <CardBody>
+        <Row>
+            <Column ColumnSize="ColumnSize.Is3" Class="text-right">Key</Column>
+            <Column ColumnSize="ColumnSize.Is9">@selected.Key</Column>
+        </Row>
+        <Row>
+            <Column ColumnSize="ColumnSize.Is3" Class="text-right">Type</Column>
+            <Column ColumnSize="ColumnSize.Is9">@selected.Type</Column>
+        </Row>
+        <Row>
+            <Column ColumnSize="ColumnSize.Is3" Class="text-right">Client</Column>
+            <Column ColumnSize="ColumnSize.Is9">@selected.ClientId</Column>
+        </Row>
+        <Row>
+            <Column ColumnSize="ColumnSize.Is3" Class="text-right">CreationTime</Column>
+            <Column ColumnSize="ColumnSize.Is9">@selected.CreationTime</Column>
+        </Row>
+        <Row>
+            <Column ColumnSize="ColumnSize.Is3" Class="text-right">Expiration</Column>
+            <Column ColumnSize="ColumnSize.Is9">@selected.Expiration</Column>
+        </Row>
+        <Row>
+            <Column ColumnSize="ColumnSize.Is3" Class="text-right">Details</Column>
+            <Column ColumnSize="ColumnSize.Is9">@selected.Data</Column>
+        </Row>
+
+    </CardBody>
+}
+
+@code {
+    private PagedResultDto<PersistedGrantDto> _persistedGrants = new PagedResultDto<PersistedGrantDto>();
+    private GetPersistedGrantListInputDto _filter = new GetPersistedGrantListInputDto();
+    private int PageSize => IdentityServerAdminOptions.Value.DefaultPageSize;
+    private long TotalCount => _persistedGrants?.TotalCount ?? 0;
+    private PersistedGrantDto selected = null;
+    private bool haveDeletePermission = false;
+
+    protected override void OnInitialized()
+    {
+      _filter.MaxResultCount = PageSize;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+      haveDeletePermission = await AuthorizationService.IsGrantedAsync(IdentityServerAdminPermissions.PersistedGrant.Delete);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+      if (firstRender)
+      {
+    await RefreshList();
+    StateHasChanged();
+      }
+    }
+
+    private async Task Delete(Guid id)
+    {
+      await PersistedGrantAppService.DeleteAsync(id);
+      await RefreshList();
+    }
+
+    private async Task HandlePaginationChanged(PaginationChangeArgs args)
+    {
+      _filter.SkipCount = (args.PageIndex - 1) * args.PageSize;
+      _filter.MaxResultCount = args.PageSize;
+      await RefreshList();
+    }
+
+
+    private async Task RefreshList()
+    {
+      _persistedGrants = await PersistedGrantAppService.GetListAsync(_filter);
+    }
+
+}

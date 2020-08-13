@@ -1,0 +1,99 @@
+﻿@page "/Clients"
+@inject IClientAppService ClientsService
+@inject IOptions<IdentityServerAdminOptions> IdentityServerAdminOptions
+@inject IAuthorizationService AuthorizationService
+@attribute [Authorize(IdentityServerAdminPermissions.Client.Manage)]
+
+
+<Table Striped="true" Bordered="true" ThemeContrast="ThemeContrast.Dark" Hoverable="true">
+    <TableHeader>
+        <TableRow>
+            <TableHeaderCell>ClientId</TableHeaderCell>
+            <TableHeaderCell>ClientName</TableHeaderCell>
+            <TableHeaderCell>Action</TableHeaderCell>
+
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        @if (_clients?.Items != null)
+        {
+            @foreach (var item in _clients.Items)
+            {
+                <TableRow>
+                    <TableRowHeader>@item.ClientId</TableRowHeader>
+                    <TableRowCell>@item.ClientName</TableRowCell>
+                    <TableRowCell>
+                        @if(haveUpdatePermission){
+                            <Button Color="Color.Primary" Size="ButtonSize.Small">
+                                <NavLink href=@($"Clients/{item.Id}/Edit")><Icon Name="@("fa-cog")" Style="color: white;"/></NavLink>
+                            </Button>
+                        }
+                        @if(haveDeletePermission){
+                       
+                            <Button Color="Color.Danger"
+                                    Size="ButtonSize.Small"
+                                    Clicked="async () => { await Delete(item.Id); }">
+                                <Icon Name="IconName.Times"/>
+                            </Button>
+                        }
+                    </TableRowCell>
+                </TableRow>
+            }
+        }
+    </TableBody>
+</Table>
+<PaginationWrapper TotalCount="TotalCount" DefaultPageSize="PageSize" PaginationChanged="HandlePaginationChanged"></PaginationWrapper>
+
+@code {
+    private PagedResultDto<ClientDto> _clients = new PagedResultDto<ClientDto>();
+    private GetClientListInputDto _filter = new GetClientListInputDto();
+
+    private int PageSize => IdentityServerAdminOptions.Value.DefaultPageSize;
+    private long TotalCount => _clients?.TotalCount ?? 0;
+    private bool haveDeletePermission { get; set; } = false;
+    private bool haveUpdatePermission { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
+        _filter.MaxResultCount = PageSize;
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        haveDeletePermission = await AuthorizationService.IsGrantedAsync(IdentityServerAdminPermissions.Client.Delete);
+        haveUpdatePermission = await AuthorizationService.IsGrantedAsync(IdentityServerAdminPermissions.Client.Update);
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await RefreshList();
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task Delete(Guid id)
+    {
+        await Task.CompletedTask;
+        await ClientsService.DeleteAsync(id);
+        await RefreshList();
+    }
+
+    private async Task HandlePaginationChanged(PaginationChangeArgs args)
+    {
+        _filter.SkipCount = (args.PageIndex - 1) * args.PageSize;
+        _filter.MaxResultCount = args.PageSize;
+        await RefreshList();
+    }
+
+    private async Task RefreshList()
+    {
+        _clients = await ClientsService.GetListAsync(_filter);
+    }
+
+}

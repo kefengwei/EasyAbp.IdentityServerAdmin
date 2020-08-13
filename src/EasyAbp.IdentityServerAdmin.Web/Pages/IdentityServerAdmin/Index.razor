@@ -1,0 +1,56 @@
+@page "/"
+
+<Card>
+    <CardBody>
+        <h1>Welcome!</h1>
+        <p>This is IdentityServer4 Admin Panel. Here you can manage your IS4 settings..</p>
+    </CardBody>
+</Card>
+
+<br/>
+<Row>
+    @foreach (var nav in Navs)
+    {
+        <Column ColumnSize="ColumnSize.IsFull.OnMobile.Is4.OnTablet">
+            <Card>
+                <CardHeader>
+                    <div class="text-center">@nav.Name</div>
+                </CardHeader>
+                <CardBody>
+                    <div class="text-center mt-2 mb-5">
+                        <span class="h1">@nav.Icon</span>
+                    </div>
+
+                    <NavLink href="@nav.Uri" class="btn btn-primary btn-block">Manage</NavLink>
+
+                </CardBody>
+            </Card>
+        </Column>
+    }
+
+</Row>
+
+@code{
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    private AuthenticationState authenticationState;
+    private readonly List<NavModel> Navs = new List<NavModel>() {
+        new NavModel{ Uri= "Clients",Name="Clients",  Icon="💻"},
+        new NavModel{ Uri= "ApiResources",Name="Api Resources",  Icon="☁️"},
+        new NavModel{ Uri= "IdentityResources",Name="Identity Resources",  Icon="🔖"},
+        new NavModel{ Uri= "PersistedGrants",Name="Persisted Grants",  Icon="🔑"},
+    };
+    protected override async Task OnInitializedAsync()
+    {
+        authenticationState = await authenticationStateTask;
+        Console.WriteLine($"{authenticationState}");
+    }
+
+
+    private class NavModel
+    {
+        public string Uri { get; set; }
+        public string Icon { get; set; }
+        public string Name { get; set; }
+    }
+}

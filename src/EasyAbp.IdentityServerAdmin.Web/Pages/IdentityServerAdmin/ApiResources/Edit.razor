@@ -1,0 +1,152 @@
+﻿@page "/ApiResources/{Id:guid}/Edit"
+@inject IApiResourceAppService ApiResourcesService
+@inject IObjectMapper ObjectMapper
+@inject NavigationManager NavigationManager
+@inject IOptions<IdentityServerAdminOptions> IdentityServerAdminOptions
+@attribute [Authorize(IdentityServerAdminPermissions.ApiResource.Update)]
+@if (model != null)
+{
+    <Validations Model="model" Mode="ValidationMode.Manual" @ref="validations">
+        <Validation>
+            <Field Horizontal="true">
+                <FieldLabel ColumnSize="ColumnSize.Is3">Name</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is9">
+                    <TextEdit @bind-Text="model.Name">
+                        <Feedback>
+                            <ValidationError/>
+                        </Feedback>
+                    </TextEdit>
+                </FieldBody>
+            </Field>
+        </Validation>
+        <Validation>
+            <Field Horizontal="true">
+                <FieldLabel ColumnSize="ColumnSize.Is3">Display Name</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is9">
+                    <TextEdit @bind-Text="model.DisplayName">
+                        <Feedback>
+                            <ValidationError/>
+                        </Feedback>
+                    </TextEdit>
+                </FieldBody>
+            </Field>
+        </Validation>
+        <Validation>
+            <Field Horizontal="true">
+                <FieldLabel ColumnSize="ColumnSize.Is3">Description</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is9">
+                    <TextEdit @bind-Text="model.Description">
+                        <Feedback>
+                            <ValidationError/>
+                        </Feedback>
+                    </TextEdit>
+                </FieldBody>
+            </Field>
+        </Validation>
+        <Validation>
+            <Field Horizontal="true">
+                <FieldLabel ColumnSize="ColumnSize.Is3">Enabled</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is9">
+                    <Switch @bind-Checked="model.Enabled"></Switch>
+                </FieldBody>
+            </Field>
+        </Validation>
+        <Validation>
+            <Field Horizontal="true">
+                <FieldLabel ColumnSize="ColumnSize.Is3">User Claims</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is9">
+                    <TagsInput
+                        @bind-Tags="model.UserClaims"
+                         OptionsLabel="Sugestions"
+                         Options="IdentityServerAdminOptions.Value.ApiResourceUserClaimSuggestions">
+                    </TagsInput>
+                </FieldBody>
+            </Field>
+        </Validation>
+        <Validation>
+            <Field Horizontal="true">
+                <FieldLabel ColumnSize="ColumnSize.Is3">Secrets</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is9">
+                    <ApiSecrets @bind-ApiSecretList="model.Secrets"></ApiSecrets>
+                </FieldBody>
+            </Field>
+        </Validation>
+        <Validation>
+            <Field Horizontal="true">
+                <FieldLabel ColumnSize="ColumnSize.Is3"></FieldLabel>
+
+                <FieldBody ColumnSize="ColumnSize.Is9">
+                    <Button
+                        Color="Color.Primary"
+
+                        Type="ButtonType.Submit"
+                        Loading="isSaving"
+                        Clicked="Save">
+                        Save
+                    </Button>
+                    <Button
+                        Color="Color.Info"
+
+                        Clicked="@(() => { NavigationManager.NavigateTo("ApiResources"); })">
+                        Cancel
+                    </Button>
+                </FieldBody>
+            </Field>
+        </Validation>
+    </Validations>
+}
+else
+{
+    if (isLoading)
+    {
+        <p>Loading</p>
+    }
+    else
+    {
+        <p>Not Found!</p>
+    }
+}
+
+
+
+
+
+@code {
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private UpdateApiResourceInputDto model { get; set; }
+    private bool isLoading { get; set; }
+    public bool isSaving { get; set; }
+    private Validations validations { get; set; }
+    private ApiResourceDto ApiResource { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        model = null;
+        isLoading = true;
+        ApiResource = await ApiResourcesService.GetAsync(Id);
+        MapToUpdateModel(ApiResource);
+        isLoading = false;
+    }
+
+    private async Task Save()
+    {
+        await Task.CompletedTask;
+        if (validations.ValidateAll())
+        {
+            Console.WriteLine($"save model: {model.Name}");
+            isSaving = true;
+            ApiResource = await ApiResourcesService.UpdateAsync(ApiResource.Id, model);
+            MapToUpdateModel(ApiResource);
+            isSaving = false;
+        }
+    }
+
+    private void MapToUpdateModel(ApiResourceDto apiResource)
+    {
+        model = ObjectMapper.Map<ApiResourceDto, UpdateApiResourceInputDto>(ApiResource);
+    }
+
+}

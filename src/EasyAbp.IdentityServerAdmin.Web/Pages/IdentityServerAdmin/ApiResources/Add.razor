@@ -1,0 +1,140 @@
+@page "/ApiResources/add"
+@inject IApiResourceAppService ApiResourcesService
+@inject NavigationManager NavigationManager
+@inject IOptions<IdentityServerAdminOptions> IdentityServerAdminOptions
+@attribute [Authorize(IdentityServerAdminPermissions.ApiResource.Create)]
+<Card>
+    <CardBody>
+        <Button >
+            <NavLink href="/IdentityServer/ApiResources">Go Back</NavLink>
+        </Button>
+    </CardBody>
+</Card>
+<br/>
+@if (create != null)
+{
+    <Card>
+        <CardBody>
+            <Validations
+                @ref="validations"
+                 Model="create"
+                 Mode="ValidationMode.Manual">
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">Name</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Validation>
+                                <TextEdit @bind-Text="create.Name">
+                                    <Feedback>
+                                        <ValidationError/>
+                                    </Feedback>
+                                </TextEdit>
+                            </Validation>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">DisplayName</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Validation>
+                                <TextEdit @bind-Text="create.DisplayName">
+                                    <Feedback>
+                                        <ValidationError/>
+                                    </Feedback>
+                                </TextEdit>
+                            </Validation>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">Description</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Validation>
+                                <TextEdit @bind-Text="create.Description">
+                                    <Feedback>
+                                        <ValidationError/>
+                                    </Feedback>
+                                </TextEdit>
+                            </Validation>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">Enabled</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Validation>
+                                <Switch @bind-Checked="create.Enabled">
+                                    <Feedback>
+                                        <ValidationError/>
+                                    </Feedback>
+                                </Switch>
+                            </Validation>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">User Claims</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Validation>
+                                <TagsInput
+                                    @bind-Tags="create.UserClaims"
+                                     OptionsLabel="Suggestions"
+                                     Options="IdentityServerAdminOptions.Value.ApiResourceUserClaimSuggestions">
+                                </TagsInput>
+                            </Validation>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3"></FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Button
+                                Color="Color.Primary"
+                                Type="ButtonType.Submit"
+                                Clicked="Create">
+                                Add
+                            </Button>
+                            <Button
+                                Color="Color.Info"
+                                Type="ButtonType.Reset"
+                                Clicked="() => { create = new CreateApiResourceInputDto(); }">
+                                Reset
+                            </Button>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+            </Validations>
+        </CardBody>
+    </Card>
+}
+
+
+@code {
+
+    private CreateApiResourceInputDto create = new CreateApiResourceInputDto();
+    private Validations validations { get; set; }
+    private bool isAdding { get; set; }
+
+
+    private async Task Create()
+    {
+        await Task.CompletedTask;
+        if (validations.ValidateAll())
+        {
+            isAdding = true;
+            await ApiResourcesService.CreateAsync(create);
+            isAdding = false;
+            create = new CreateApiResourceInputDto() {Enabled = true};
+            NavigationManager.NavigateTo("/IdentityServer/ApiResources");
+        }
+    }
+
+
+
+
+}

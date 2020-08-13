@@ -1,0 +1,67 @@
+﻿@using EasyAbp.IdentityServerAdmin.Clients.Dtos
+
+<EditForm Model="PropertyList">
+    <Card>
+        <CardBody>
+            @foreach (var property in PropertyList)
+            {
+                <Card Class="mb-2">
+                    <CardBody>
+                        <div class="row">
+                            <div class="col-sm-6 ">
+                                <div class="form-group row">
+                                    <label class="col-sm-2">Key</label>
+                                    <div class="col-sm-10">
+                                        <TextEdit @bind-Text="property.Key"></TextEdit>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 ">
+                                <div class="form-group row">
+                                    <label class="col-sm-2">Value</label>
+                                    <div class="col-sm-10">
+                                        <TextEdit @bind-Text="property.Value"></TextEdit>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </CardBody>
+                    <CardFooter>
+                        <Button
+                                Color="Color.Danger"
+                                Clicked="()=> {
+                                                PropertyList.Remove(property);
+                                                PropertyListChanged.InvokeAsync(PropertyList);
+                                            }">
+                            Delete
+                        </Button>
+                    </CardFooter>
+                </Card>
+            }
+        </CardBody>
+        <CardFooter>
+            <Button Color="Color.Primary"
+
+                    Clicked="()=> {
+                                 PropertyList.Add(new ClientPropertyDto());
+                                 PropertyListChanged.InvokeAsync(PropertyList);
+                             }">New Property</Button>
+        </CardFooter>
+    </Card>
+</EditForm>
+
+
+
+
+
+
+@code {
+
+
+    [Parameter]
+    public List<ClientPropertyDto> PropertyList { get; set; } = new List<ClientPropertyDto>();
+
+    [Parameter]
+    public EventCallback<List<ClientPropertyDto>> PropertyListChanged { get; set; }
+
+}

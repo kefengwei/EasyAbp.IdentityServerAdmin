@@ -1,0 +1,91 @@
+@inherits LayoutComponentBase
+
+<Layout Sider="true">
+    <LayoutSider>
+        <LayoutSiderContent>
+            <Bar
+                Breakpoint="Breakpoint.Desktop"
+                NavigationBreakpoint="Breakpoint.Tablet"
+                ThemeContrast="ThemeContrast.Light"
+                Mode="BarMode.VerticalInline"
+                CollapseMode="BarCollapseMode.Small">
+                <BarBrand>
+                    <BarItem>
+                        <BarLink To="">
+                            IdentityServerPanel
+                        </BarLink>
+                    </BarItem>
+                </BarBrand>
+                <BarMenu>
+                    <BarStart>
+                        <BarItem>
+                            <BarLink To="">
+                                <BarIcon IconName="IconName.Home"></BarIcon>
+                                Dashboard
+                            </BarLink>
+                        </BarItem>
+                        <BarItem>
+                            <BarDropdown>
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="IconName.Desktop"></BarIcon>
+                                    Clients
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    <BarDropdownItem To="Clients">
+                                        List
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="Clients/Add">
+                                        Add
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                            <BarDropdown>
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="IconName.IdCard"></BarIcon>
+                                    Identity Resources
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    <BarDropdownItem To="IdentityResources">
+                                        List
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="IdentityResources/Add">
+                                        Add
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                            <BarDropdown>
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="IconName.Cloud"></BarIcon>
+                                    Api Resources
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    <BarDropdownItem To="ApiResources">
+                                        List
+                                    </BarDropdownItem>
+                                    <BarDropdownItem To="ApiResources/Add">
+                                        Add
+                                    </BarDropdownItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                        <BarItem>
+                            <BarLink To="PersistedGrants">
+                                <BarIcon IconName="IconName.Lock"></BarIcon>
+                                Persisted Grants
+                            </BarLink>
+                        </BarItem>
+                    </BarStart>
+                </BarMenu>
+            </Bar>
+        </LayoutSiderContent>
+    </LayoutSider>
+    <Layout>
+        <LayoutContent Padding="Padding.Is2.OnX">
+            @Body
+        </LayoutContent>
+    </Layout>
+</Layout>
+
+@code {
+
+}

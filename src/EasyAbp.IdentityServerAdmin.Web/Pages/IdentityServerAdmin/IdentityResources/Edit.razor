@@ -1,0 +1,147 @@
+@page "/IdentityResources/{Id:guid}/Edit"
+@inject IIdentityResourceAppService IdentityResourcesService
+@inject NavigationManager NavigationManager
+@inject IObjectMapper ObjectMapper
+@inject IOptions<IdentityServerAdminOptions> IdentityServerAdminOptions
+ @attribute [Authorize(IdentityServerAdminPermissions.IdentityResource.Update)]
+<Card>
+    <CardBody>
+        @if (model != null)
+        {
+            <Validations Model="model" Mode="ValidationMode.Manual" @ref="validations">
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">Name</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <TextEdit @bind-Text="model.Name">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">DisplayName</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <TextEdit @bind-Text="model.DisplayName">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">Description</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <TextEdit @bind-Text="model.Description">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">Enabled</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Switch @bind-Checked="model.Enabled"></Switch>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">Required</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Switch @bind-Checked="model.Required"></Switch>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">Emphasize</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Switch @bind-Checked="model.Emphasize"></Switch>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">ShowInDiscoveryDocument</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Switch @bind-Checked="model.ShowInDiscoveryDocument"></Switch>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3">UserClaims</FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Validation>
+                                <TagsInput @bind-Tags="model.UserClaims" OptionsLabel="Suggestions" Options="IdentityServerAdminOptions.Value.ApiResourceUserClaimSuggestions"></TagsInput>
+                            </Validation>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+                <Validation>
+                    <Field Horizontal="true">
+                        <FieldLabel ColumnSize="ColumnSize.Is3"></FieldLabel>
+                        <FieldBody ColumnSize="ColumnSize.Is9">
+                            <Button Color="Color.Primary"
+                                    Type="ButtonType.Submit"
+                                    Loading="isSaving"
+                                    Clicked="Save">
+                                Save
+                            </Button>
+                            <Button Color="Color.Info"
+                                    Clicked="@(()=>{
+                        NavigationManager.NavigateTo("IdentityResources");
+                    })">
+                                Cancel
+                            </Button>
+                        </FieldBody>
+                    </Field>
+                </Validation>
+            </Validations>
+        }
+    </CardBody>
+</Card>
+
+
+
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+    private UpdateIdentityResourceInputDto model { get; set; }
+    private IdentityResourceDto _identityResource { get; set; }
+    private bool isLoading { get; set; }
+    private bool isSaving { get; set; }
+    private Validations validations { get; set; }
+    protected override async Task OnParametersSetAsync()
+    {
+        model = null;
+        isLoading = true;
+        _identityResource = await IdentityResourcesService.GetAsync(Id);
+        MapToUpdateModel(_identityResource);
+        isLoading = false;
+    }
+    private async Task Save()
+    {
+        if (validations.ValidateAll())
+        {
+            isSaving = true;
+            _identityResource = await IdentityResourcesService.UpdateAsync(_identityResource.Id, model);
+            MapToUpdateModel(_identityResource);
+            isSaving = false;
+        }
+    }
+    private void MapToUpdateModel(IdentityResourceDto identityResource)
+    {
+        model = ObjectMapper.Map<IdentityResourceDto, UpdateIdentityResourceInputDto>(identityResource);
+    }
+}

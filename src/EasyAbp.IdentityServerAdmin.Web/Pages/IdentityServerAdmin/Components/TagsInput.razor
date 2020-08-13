@@ -1,0 +1,97 @@
+﻿<div class=" @Css">
+    <div class="bootstrap-tagsinput form-control @(IsFocus ? "focus" : "")">
+        @if (Tags == null)
+        {
+            Tags = new List<string>();
+            TagsChanged.InvokeAsync(Tags);
+        }
+        @foreach (var tag in Tags)
+        {
+            @GenTags(tag)
+        }
+
+        <input type="text"
+               placeholder="@Placeholder"
+               spellcheck="false"
+               data-ms-editpr="true"
+               @bind="InputValue"
+               @bind:event="onchange"
+               @onfocus="() => { IsFocus = true; }"
+               @onblur="() => { IsFocus = false; }"/>
+    </div>
+    @if (Options != null && Options.Count > 0)
+    {
+        @if (!string.IsNullOrEmpty(OptionsLabel))
+        {
+            <small> @OptionsLabel </small>
+        }
+        <div class="d-flex mt-1 flex-wrap">
+            @foreach (var option in Options)
+            {
+                <div class="mx-1" style="cursor:pointer;"
+                     @onclick="() => { Add(option); }">
+                    <Badge Color="Color.Info" Class="p-1">
+                        @option <Icon Name="IconName.Add"> </Icon>
+                    </Badge>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+
+@code{
+
+    [Parameter]
+    public string Placeholder { get; set; }
+
+    [Parameter]
+    public string Css { get; set; }
+
+    [Parameter]
+    public List<string> Tags { get; set; } = new List<string>();
+
+    [Parameter]
+    public EventCallback<List<string>> TagsChanged { get; set; }
+
+    [Parameter]
+    public List<string> Options { get; set; } = new List<string>();
+
+    [Parameter]
+    public string OptionsLabel { get; set; }
+
+    private string _inputValue;
+
+    private string InputValue
+    {
+        get => _inputValue;
+        set
+        {
+            _inputValue = value;
+            Add(value);
+            _inputValue = string.Empty;
+        }
+    }
+
+    private bool IsFocus { get; set; }
+
+    private void Add(string str)
+    {
+        if (!string.IsNullOrEmpty(str) && !Tags.Contains(str))
+        {
+            Tags.Add(str);
+        }
+    }
+
+
+    private RenderFragment GenTags(string tag)
+    {
+        return@<span class="badge badge-primary mr-1">
+                  @tag
+                  <span data-role="remove"
+                        @onclick="() => { Tags.Remove(tag); TagsChanged.InvokeAsync(Tags); }">
+                  </span>
+              </span>;
+    }
+
+}

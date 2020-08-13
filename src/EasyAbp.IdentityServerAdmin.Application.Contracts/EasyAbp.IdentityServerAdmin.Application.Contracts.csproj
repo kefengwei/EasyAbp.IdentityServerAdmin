@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>EasyAbp.IdentityServerAdmin</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Ddd.Application.Contracts" Version="3.0.5" />
+    <PackageReference Include="Volo.Abp.Authorization" Version="3.0.5" />
+    <ProjectReference Include="..\EasyAbp.IdentityServerAdmin.Domain.Shared\EasyAbp.IdentityServerAdmin.Domain.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

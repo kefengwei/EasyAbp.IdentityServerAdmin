@@ -1,0 +1,13 @@
+{
+  "culture": "en",
+  "texts": {
+    "Permission:IdentityServerAdmin": "IdentityServerAdmin",
+    "Permission:ApiResource": "ApiResource",
+    "Permission:Client": "Client",
+    "Permission:IdentityResource": "IdentityResource",
+    "Permission:PersistedGrant": "PersistedGrant",
+    "Permission:Create": "Create",
+    "Permission:Update": "Update",
+    "Permission:Delete": "Delete"
+  }
+}

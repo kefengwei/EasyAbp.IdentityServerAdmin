@@ -1,0 +1,105 @@
+﻿@page "/IdentityResources"
+@inject IIdentityResourceAppService IdentityResourcesService
+@inject NavigationManager NavigationManager
+@inject IOptions<IdentityServerAdminOptions> IdentityServerAdminOptions
+@inject IAuthorizationService AuthorizationService
+@attribute [Authorize(IdentityServerAdminPermissions.IdentityResource.Manage)]
+<Table Striped="true"
+       Bordered="true"
+       ThemeContrast="ThemeContrast.Dark"
+       Hoverable="true">
+    <TableHeader>
+        <TableRow>
+            <TableHeaderCell>Name</TableHeaderCell>
+            <TableHeaderCell>DisplayName</TableHeaderCell>
+            <TableHeaderCell>Discription</TableHeaderCell>
+            <TableHeaderCell>Action</TableHeaderCell>
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        @if (_identityResources?.Items != null)
+        {
+            @foreach (var identityResource in _identityResources.Items)
+            {
+                <TableRow>
+                    <TableRowHeader>@identityResource.Name</TableRowHeader>
+                    <TableRowCell>@identityResource.DisplayName</TableRowCell>
+                    <TableRowCell>@identityResource.Description</TableRowCell>
+                    <TableRowCell>
+                        @if(haveUpdatePermission)
+                        {
+                            <Button Color="Color.Primary"
+                                    Size="ButtonSize.Small">
+                                <NavLink href=@($"IdentityResources/{identityResource.Id}/Edit")>
+                                    <Icon Name="@("fa-cog")" Style="color: white;"/>
+                                </NavLink>
+                            </Button>
+                        }
+                        @if(haveDeletePermission)
+                        {
+                           <Button Color="Color.Danger"
+                                Size="ButtonSize.Small"
+                                Clicked="async () => { await Delete(identityResource.Id); }">
+                            <Icon Name="IconName.Times"/>
+                            </Button>
+                        }
+
+                        
+                    </TableRowCell>
+                </TableRow>
+            }
+        }
+    </TableBody>
+</Table>
+<PaginationWrapper TotalCount="TotalCount" DefaultPageSize="PageSize" PaginationChanged="HandlePaginationChanged"></PaginationWrapper>
+
+
+@code {
+    private PagedResultDto<IdentityResourceDto> _identityResources = new PagedResultDto<IdentityResourceDto>();
+    private GetIdentityResourceListInputDto _filter = new GetIdentityResourceListInputDto();
+    private int PageSize => IdentityServerAdminOptions.Value.DefaultPageSize;
+    private long TotalCount => _identityResources?.TotalCount ?? 0;
+    private bool haveDeletePermission = false;
+    private bool haveUpdatePermission = false;
+
+    protected override void OnInitialized()
+    {
+        _filter.MaxResultCount = PageSize;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        haveDeletePermission = await AuthorizationService.IsGrantedAsync(IdentityServerAdminPermissions.IdentityResource.Delete);
+        haveUpdatePermission = await AuthorizationService.IsGrantedAsync(IdentityServerAdminPermissions.IdentityResource.Update);
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await RefreshList();
+            StateHasChanged();
+        }
+    }
+
+    private async Task Delete(Guid id)
+    {
+        await IdentityResourcesService.DeleteAsync(id);
+        await RefreshList();
+    }
+
+    private async Task HandlePaginationChanged(PaginationChangeArgs args)
+    {
+        _filter.SkipCount = (args.PageIndex - 1) * args.PageSize;
+        _filter.MaxResultCount = args.PageSize;
+        await RefreshList();
+    }
+
+    private async Task RefreshList()
+    {
+        _identityResources = await IdentityResourcesService.GetListAsync(_filter);
+    }
+
+}

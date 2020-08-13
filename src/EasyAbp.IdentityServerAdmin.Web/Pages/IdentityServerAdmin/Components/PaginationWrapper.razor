@@ -1,0 +1,253 @@
+﻿@if (TotalCount > PageSize || !AutoHide)
+{
+    <Pagination Size="@Size" Alignment="@Alignment" Background="@Background">
+        <PaginationItem Disabled="PageIndex == 1">
+            <PaginationLink Clicked="() => { Prev(); }">
+                <span aria-hidden="true">&lt;</span>
+            </PaginationLink>
+        </PaginationItem>
+
+        @if (TotalPage > PageGutter)
+        {
+            <PaginationItem Active="PageIndex == 1">
+                <PaginationLink Clicked="() => { ChangePage(1); }">
+                    1
+                </PaginationLink>
+            </PaginationItem>
+            @if (PageIndex - GutterMiddle > 1)
+            {
+                <PaginationItem>
+                    <PaginationLink Clicked="PrevGutter">&laquo;</PaginationLink>
+                </PaginationItem>
+            }
+
+
+            @for (int i = PageGutterPrev; i <= PageGutterNext; i++)
+            {
+                var index = i;
+                <PaginationItem Active="PageIndex == index">
+                    <PaginationLink Clicked="() => { ChangePage(index); }">
+                        @index
+                    </PaginationLink>
+                </PaginationItem>
+            }
+
+            @if (PageIndex + GutterMiddle < TotalPage)
+            {
+                <PaginationItem>
+                    <PaginationLink Clicked="NextGutter">&raquo;</PaginationLink>
+                </PaginationItem>
+            }
+
+
+            <PaginationItem Active="PageIndex == TotalPage">
+                <PaginationLink Clicked="() => { ChangePage(TotalPage); }">
+                    @TotalPage
+                </PaginationLink>
+            </PaginationItem>
+        }
+        else
+        {
+            @for (int i = 1; i <= TotalPage; i++)
+            {
+                var index = i;
+                <PaginationItem Active="PageIndex == index">
+                    <PaginationLink Clicked="() => { ChangePage(index); }">
+                        @index
+                    </PaginationLink>
+                </PaginationItem>
+            }
+        }
+
+
+        <PaginationItem Disabled="PageIndex >= TotalPage">
+            <PaginationLink Clicked="Next">
+                <span aria-hidden="true">&gt;</span>
+            </PaginationLink>
+        </PaginationItem>
+        @if (ShowPageSizeChanger)
+        {
+            <PaginationItem>
+                <PaginationLink Style="padding: .35rem .5rem; cursor: default;">
+                    <span>&nbsp;PerPage: </span> <input @bind-value="PageSize" style="width: 35px;"/> <span>Items</span>
+                </PaginationLink>
+            </PaginationItem>
+        }
+    </Pagination>
+}
+
+
+
+
+
+@code {
+    private const int DEFAULT_PAGE_SIZE = 10;
+
+    [Parameter]
+    public Size Size { get; set; } = Size.None;
+
+    [Parameter]
+    public Alignment Alignment { get; set; } = Alignment.None;
+
+    [Parameter]
+    public Background Background { get; set; } = Background.None;
+
+    [Parameter]
+    public bool AutoHide { get; set; } = true;
+
+    [Parameter]
+    public long TotalCount { get; set; }
+
+
+    private int _defaultPageSize = DEFAULT_PAGE_SIZE;
+
+    [Parameter]
+    public int DefaultPageSize
+    {
+        get => _defaultPageSize;
+        set
+        {
+            if (_defaultPageSize == value)
+            {
+                return;
+            }
+            _defaultPageSize = value;
+            PageSize = _defaultPageSize;
+        }
+    }
+
+
+    private int _pageSize = DEFAULT_PAGE_SIZE;
+
+
+    public int PageSize
+    {
+        get => _pageSize;
+        set
+        {
+            if (_pageSize == value) return;
+            _pageSize = value;
+            PaginationChanged.InvokeAsync(new PaginationChangeArgs { PageIndex = PageIndex, PageSize = value });
+        }
+    }
+
+    [Parameter]
+    public bool ShowPageSizeChanger { get; set; } = false;
+
+    private int _pageIndex = 1;
+
+    [Parameter]
+    public int PageIndex
+    {
+        get => _pageIndex;
+        set
+        {
+            var tempValue = Math.Clamp(value, 1, TotalPage);
+            if (tempValue == _pageIndex)
+            {
+                return;
+            }
+            _pageIndex = tempValue;
+            PaginationChanged.InvokeAsync(new PaginationChangeArgs
+            {
+                PageIndex = _pageIndex,
+                PageSize = PageSize
+            });
+        }
+    }
+
+    [Parameter]
+    public EventCallback<PaginationChangeArgs> PaginationChanged { get; set; }
+
+    private int _pageGutter = 5;
+
+
+    [Parameter]
+    public int PageGutter
+    {
+        get { return _pageGutter; }
+        set
+        {
+            if (_pageGutter % 2 == 0)
+            {
+                throw new Exception("Page gutter must be odd");
+            }
+            _pageGutter = value;
+        }
+    }
+
+    private int PageGutterPrev
+    {
+        get
+        {
+            if ((TotalPage - PageIndex) < GutterMiddle)
+            {
+                return TotalPage - PageGutter + 1;
+            }
+
+            return Math.Max(2, PageIndex - GutterMiddle);
+        }
+    }
+
+    private int GutterMiddle => PageGutter / 2;
+
+    private int PageGutterNext
+    {
+        get
+        {
+            if (PageIndex <= GutterMiddle)
+            {
+                return PageGutter;
+            }
+            return Math.Min(TotalPage - 1, PageIndex + GutterMiddle);
+        }
+    }
+
+
+    private int TotalPage
+    {
+        get
+        {
+            if (PageSize == 0)
+            {
+                throw new Exception("Page size can not be zero");
+            }
+            return (int)(TotalCount / PageSize) + (TotalCount % PageSize == 0 ? 0 : 1);
+        }
+    }
+
+    public void ChangePage(int index)
+    {
+        PageIndex = index;
+    }
+
+    public void NextGutter()
+    {
+        PageIndex += PageGutter;
+    }
+
+    public void PrevGutter()
+    {
+        PageIndex -= PageGutter;
+    }
+
+
+    public void Next()
+    {
+        if (PageIndex < TotalPage)
+        {
+            PageIndex++;
+            ChangePage(PageIndex);
+        }
+    }
+
+    public void Prev()
+    {
+        if (PageIndex > 1)
+        {
+            PageIndex--;
+            ChangePage(PageIndex);
+        }
+    }
+
+}
