@@ -4,7 +4,8 @@
 @inject IAuthorizationService AuthorizationService
 @attribute [Authorize(IdentityServerAdminPermissions.Client.Manage)]
 
-
+@if (_clients?.Items != null && _clients.Items.Count > 0)
+{
 <Table Striped="true" Bordered="true" ThemeContrast="ThemeContrast.Dark" Hoverable="true">
     <TableHeader>
         <TableRow>
@@ -15,34 +16,37 @@
         </TableRow>
     </TableHeader>
     <TableBody>
-        @if (_clients?.Items != null)
+
+        @foreach (var item in _clients.Items)
         {
-            @foreach (var item in _clients.Items)
-            {
-                <TableRow>
-                    <TableRowHeader>@item.ClientId</TableRowHeader>
-                    <TableRowCell>@item.ClientName</TableRowCell>
-                    <TableRowCell>
-                        @if(haveUpdatePermission){
-                            <Button Color="Color.Primary" Size="ButtonSize.Small">
-                                <NavLink href=@($"Clients/{item.Id}/Edit")><Icon Name="@("fa-cog")" Style="color: white;"/></NavLink>
-                            </Button>
-                        }
-                        @if(haveDeletePermission){
-                       
-                            <Button Color="Color.Danger"
-                                    Size="ButtonSize.Small"
-                                    Clicked="async () => { await Delete(item.Id); }">
-                                <Icon Name="IconName.Times"/>
-                            </Button>
-                        }
-                    </TableRowCell>
-                </TableRow>
-            }
+            <TableRow>
+                <TableRowHeader>@item.ClientId</TableRowHeader>
+                <TableRowCell>@item.ClientName</TableRowCell>
+                <TableRowCell>
+                    @if (haveUpdatePermission)
+                    {
+                        <Button Color="Color.Primary" Size="ButtonSize.Small">
+                            <NavLink href=@($"Clients/{item.Id}/Edit")>
+                                <Icon Name="@("fa-cog")" Style="color: white;"/>
+                            </NavLink>
+                        </Button>
+                    }
+                    @if (haveDeletePermission)
+                    {
+                        <Button Color="Color.Danger"
+                                Size="ButtonSize.Small"
+                                Clicked="async () => { await Delete(item.Id); }">
+                            <Icon Name="IconName.Times"/>
+                        </Button>
+                    }
+                </TableRowCell>
+            </TableRow>
         }
+
     </TableBody>
 </Table>
-<PaginationWrapper TotalCount="TotalCount" DefaultPageSize="PageSize" PaginationChanged="HandlePaginationChanged"></PaginationWrapper>
+    <PaginationWrapper TotalCount="TotalCount" DefaultPageSize="PageSize" PaginationChanged="HandlePaginationChanged"></PaginationWrapper>
+}
 
 @code {
     private PagedResultDto<ClientDto> _clients = new PagedResultDto<ClientDto>();

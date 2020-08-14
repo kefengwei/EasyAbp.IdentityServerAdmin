@@ -106,14 +106,17 @@ namespace EasyAbp.IdentityServerAdmin.Web
       });
       context.Services.AddRazorPages();
       context.Services.AddServerSideBlazor();
-      context.Services.AddBlazorise(options => { options.ChangeTextOnKeyPress = false; }).AddBootstrapProviders()
+      context.Services.AddBlazorise(options => { options.ChangeTextOnKeyPress = false; })
+          .AddBootstrapProviders()
           .AddFontAwesomeIcons();
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
     {
       var app = context.GetApplicationBuilder();
-      app.ApplicationServices.UseBootstrapProviders().UseFontAwesomeIcons();
+      app.ApplicationServices
+        .UseBootstrapProviders()
+        .UseFontAwesomeIcons();
     }
 
     public override void OnPostApplicationInitialization(ApplicationInitializationContext context)

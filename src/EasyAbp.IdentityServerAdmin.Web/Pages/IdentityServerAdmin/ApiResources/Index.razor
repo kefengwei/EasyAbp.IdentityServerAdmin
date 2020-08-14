@@ -4,7 +4,8 @@
 @inject IAuthorizationService AuthorizationService
 @attribute [Authorize(IdentityServerAdminPermissions.ApiResource.Manage)]
 
-
+@if (_apiResources?.Items != null && _apiResources.Items.Count > 0)
+{
 <Table
     Striped="true"
     Bordered="true"
@@ -19,48 +20,47 @@
         </TableRow>
     </TableHeader>
     <TableBody>
-        @if (_apiResources?.Items != null)
+
+        @foreach (var apiResource in _apiResources.Items)
         {
-            @foreach (var apiResource in _apiResources.Items)
-            {
-                <TableRow>
-                    <TableRowHeader>
-                        @apiResource.Name
-                    </TableRowHeader>
-                    <TableRowCell>
-                        @apiResource.DisplayName
-                    </TableRowCell>
-                    <TableRowCell>
-                        @apiResource.Description
-                    </TableRowCell>
-                    <TableRowCell>
-                        @if (haveUpdatePermission)
-                        {
-                            <Button Color="Color.Primary"
-                                    Size="ButtonSize.Small">
-                                <NavLink href=@($"ApiResources/{apiResource.Id}/Edit")>
-                                    <Icon Name="@("fa-cog")" Style="color: white;"/>
-                                </NavLink>
-                            </Button>
-                        }
-                        @if (haveDeletePermission)
-                        {
-                            <Button Color="Color.Danger"
-                                    Size="ButtonSize.Small"
-                                    Clicked="async () => { await Delete(apiResource.Id); }">
-                                <Icon Name="IconName.Times"/>
-                            </Button>
-                        }
-                    </TableRowCell>
-                </TableRow>
-            }
+            <TableRow>
+                <TableRowHeader>
+                    @apiResource.Name
+                </TableRowHeader>
+                <TableRowCell>
+                    @apiResource.DisplayName
+                </TableRowCell>
+                <TableRowCell>
+                    @apiResource.Description
+                </TableRowCell>
+                <TableRowCell>
+                    @if (haveUpdatePermission)
+                    {
+                        <Button Color="Color.Primary"
+                                Size="ButtonSize.Small">
+                            <NavLink href=@($"ApiResources/{apiResource.Id}/Edit")>
+                                <Icon Name="@("fa-cog")" Style="color: white;"/>
+                            </NavLink>
+                        </Button>
+                    }
+                    @if (haveDeletePermission)
+                    {
+                        <Button Color="Color.Danger"
+                                Size="ButtonSize.Small"
+                                Clicked="async () => { await Delete(apiResource.Id); }">
+                            <Icon Name="IconName.Times"/>
+                        </Button>
+                    }
+                </TableRowCell>
+            </TableRow>
         }
+
 
     </TableBody>
 </Table>
 
-<PaginationWrapper TotalCount="TotalCount" DefaultPageSize="PageSize" PaginationChanged="HandlePaginationChanged"></PaginationWrapper>
-
+    <PaginationWrapper TotalCount="TotalCount" DefaultPageSize="PageSize" PaginationChanged="HandlePaginationChanged"></PaginationWrapper>
+}
 
 @code {
     private PagedResultDto<ApiResourceDto> _apiResources = new PagedResultDto<ApiResourceDto>();

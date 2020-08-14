@@ -7,7 +7,7 @@
         }
         @foreach (var tag in Tags)
         {
-            @GenTags(tag)
+            <TagLabel Label="@tag" RemoveClicked="()=>{HandleRemoveClicked(tag);}"></TagLabel>
         }
 
         <input type="text"
@@ -83,15 +83,10 @@
         }
     }
 
-
-    private RenderFragment GenTags(string tag)
+    private void HandleRemoveClicked(string tag)
     {
-        return@<span class="badge badge-primary mr-1">
-                  @tag
-                  <span data-role="remove"
-                        @onclick="() => { Tags.Remove(tag); TagsChanged.InvokeAsync(Tags); }">
-                  </span>
-              </span>;
+        Tags.Remove(tag);
+        TagsChanged.InvokeAsync(Tags);
     }
 
 }

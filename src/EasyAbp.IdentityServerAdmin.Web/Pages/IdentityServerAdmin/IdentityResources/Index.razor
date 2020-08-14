@@ -4,6 +4,8 @@
 @inject IOptions<IdentityServerAdminOptions> IdentityServerAdminOptions
 @inject IAuthorizationService AuthorizationService
 @attribute [Authorize(IdentityServerAdminPermissions.IdentityResource.Manage)]
+@if (_identityResources?.Items != null && _identityResources.Items.Count > 0)
+{
 <Table Striped="true"
        Bordered="true"
        ThemeContrast="ThemeContrast.Dark"
@@ -17,42 +19,41 @@
         </TableRow>
     </TableHeader>
     <TableBody>
-        @if (_identityResources?.Items != null)
+
+        @foreach (var identityResource in _identityResources.Items)
         {
-            @foreach (var identityResource in _identityResources.Items)
-            {
-                <TableRow>
-                    <TableRowHeader>@identityResource.Name</TableRowHeader>
-                    <TableRowCell>@identityResource.DisplayName</TableRowCell>
-                    <TableRowCell>@identityResource.Description</TableRowCell>
-                    <TableRowCell>
-                        @if(haveUpdatePermission)
-                        {
-                            <Button Color="Color.Primary"
-                                    Size="ButtonSize.Small">
-                                <NavLink href=@($"IdentityResources/{identityResource.Id}/Edit")>
-                                    <Icon Name="@("fa-cog")" Style="color: white;"/>
-                                </NavLink>
-                            </Button>
-                        }
-                        @if(haveDeletePermission)
-                        {
-                           <Button Color="Color.Danger"
+            <TableRow>
+                <TableRowHeader>@identityResource.Name</TableRowHeader>
+                <TableRowCell>@identityResource.DisplayName</TableRowCell>
+                <TableRowCell>@identityResource.Description</TableRowCell>
+                <TableRowCell>
+                    @if (haveUpdatePermission)
+                    {
+                        <Button Color="Color.Primary"
+                                Size="ButtonSize.Small">
+                            <NavLink href=@($"IdentityResources/{identityResource.Id}/Edit")>
+                                <Icon Name="@("fa-cog")" Style="color: white;"/>
+                            </NavLink>
+                        </Button>
+                    }
+                    @if (haveDeletePermission)
+                    {
+                        <Button Color="Color.Danger"
                                 Size="ButtonSize.Small"
                                 Clicked="async () => { await Delete(identityResource.Id); }">
                             <Icon Name="IconName.Times"/>
-                            </Button>
-                        }
+                        </Button>
+                    }
 
-                        
-                    </TableRowCell>
-                </TableRow>
-            }
+
+                </TableRowCell>
+            </TableRow>
         }
+
     </TableBody>
 </Table>
-<PaginationWrapper TotalCount="TotalCount" DefaultPageSize="PageSize" PaginationChanged="HandlePaginationChanged"></PaginationWrapper>
-
+    <PaginationWrapper TotalCount="TotalCount" DefaultPageSize="PageSize" PaginationChanged="HandlePaginationChanged"></PaginationWrapper>
+}
 
 @code {
     private PagedResultDto<IdentityResourceDto> _identityResources = new PagedResultDto<IdentityResourceDto>();

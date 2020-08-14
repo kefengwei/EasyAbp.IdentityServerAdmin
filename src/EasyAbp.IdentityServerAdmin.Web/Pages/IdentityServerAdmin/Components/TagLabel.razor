@@ -1,0 +1,16 @@
+<span class="badge badge-primary mr-1">
+    @Label
+    <span data-role="remove"
+          @onclick="() => { RemoveClicked.InvokeAsync(null); }">
+    </span>
+</span>
+
+@code {
+
+    [Parameter]
+    public string Label { get; set; }
+
+    [Parameter]
+    public EventCallback RemoveClicked { get; set; }
+
+}
