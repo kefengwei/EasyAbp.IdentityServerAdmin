@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Volo.Abp.IdentityServer.MongoDB" Version="3.0.5" />
-    <PackageReference Include="Volo.Abp.MongoDB" Version="3.0.5" />
+    <PackageReference Include="Volo.Abp.IdentityServer.MongoDB" Version="3.3.1" />
+    <PackageReference Include="Volo.Abp.MongoDB" Version="3.3.1" />
     <ProjectReference Include="..\EasyAbp.IdentityServerAdmin.Domain\EasyAbp.IdentityServerAdmin.Domain.csproj" />
   </ItemGroup>
 
