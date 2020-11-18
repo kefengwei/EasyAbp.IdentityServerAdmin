@@ -27,8 +27,8 @@ namespace EasyAbp.IdentityServerAdmin
                 .ForMember(des => des.UserClaims,
                     opt => opt.MapFrom(src => src.UserClaims.Select(x => x.Type)))
                 ;
-            CreateMap<ApiSecret, ApiSecretDto>().ReverseMap();
-            CreateMap<ApiScope, ApiScopeDto>().ReverseMap();
+            CreateMap<ApiResourceSecret, ApiSecretDto>().ReverseMap();
+            CreateMap<ApiResourceScope, ApiScopeDto>().ReverseMap();
 
             CreateMap<UpdateApiResourceInputDto, ApiResource>()
                 .Ignore(des => des.UserClaims)
@@ -36,9 +36,9 @@ namespace EasyAbp.IdentityServerAdmin
                 .Ignore(des => des.Properties)
                 .Ignore(des => des.ExtraProperties)
                 .Ignore(des => des.ConcurrencyStamp)
-                .IgnoreFullAuditedObjectProperties()
-
-                ;
+                .Ignore(des => des.AllowedAccessTokenSigningAlgorithms)
+                .Ignore(des => des.ShowInDiscoveryDocument)
+                .IgnoreFullAuditedObjectProperties();
 
 
 
@@ -78,6 +78,8 @@ namespace EasyAbp.IdentityServerAdmin
                 .Ignore(des => des.Properties)
                 .Ignore(des => des.ExtraProperties)
                 .Ignore(des => des.ConcurrencyStamp)
+                .Ignore(des=>des.AllowedIdentityTokenSigningAlgorithms)
+                .Ignore(des => des.RequireRequestObject)
                 .IgnoreFullAuditedObjectProperties()
                 ;
 
