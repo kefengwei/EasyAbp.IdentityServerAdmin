@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\common.props" />
 
@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.0" />
     <ProjectReference Include="..\..\src\EasyAbp.IdentityServerAdmin.EntityFrameworkCore\EasyAbp.IdentityServerAdmin.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\EasyAbp.IdentityServerAdmin.TestBase\EasyAbp.IdentityServerAdmin.TestBase.csproj" />
-    <PackageReference Include="Volo.Abp.EntityFrameworkCore.Sqlite" Version="4.0.0-rc.3" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore.Sqlite" Version="4.0.0-rc.4" />
   </ItemGroup>
 
 </Project>

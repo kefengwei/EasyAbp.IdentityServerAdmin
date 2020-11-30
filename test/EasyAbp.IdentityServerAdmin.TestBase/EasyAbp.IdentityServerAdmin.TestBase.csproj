@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\common.props" />
 
@@ -17,9 +17,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Volo.Abp.Autofac" Version="4.0.0-rc.3" />
-    <PackageReference Include="Volo.Abp.Authorization" Version="4.0.0-rc.3" />
-    <PackageReference Include="Volo.Abp.TestBase" Version="4.0.0-rc.3" />
+    <PackageReference Include="Volo.Abp.Autofac" Version="4.0.0-rc.4" />
+    <PackageReference Include="Volo.Abp.Authorization" Version="4.0.0-rc.4" />
+    <PackageReference Include="Volo.Abp.TestBase" Version="4.0.0-rc.4" />
     <ProjectReference Include="..\..\src\EasyAbp.IdentityServerAdmin.Domain\EasyAbp.IdentityServerAdmin.Domain.csproj" />
   </ItemGroup>
 

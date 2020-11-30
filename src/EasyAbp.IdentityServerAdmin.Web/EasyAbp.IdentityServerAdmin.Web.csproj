@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <Import Project="..\..\common.props" />
 
@@ -14,8 +14,8 @@
   <ItemGroup>
     <PackageReference Include="Blazorise.Bootstrap" Version="0.9.2" />
     <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.2" />
-    <PackageReference Include="Volo.Abp.AutoMapper" Version="4.0.0-rc.3" />
-    <PackageReference Include="Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared" Version="4.0.0-rc.3" />
+    <PackageReference Include="Volo.Abp.AutoMapper" Version="4.0.0-rc.4" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared" Version="4.0.0-rc.4" />
   </ItemGroup>
 
   <ItemGroup>
