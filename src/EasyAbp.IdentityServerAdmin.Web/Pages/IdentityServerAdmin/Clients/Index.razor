@@ -25,7 +25,7 @@
                 <TableRowCell>
                     @if (haveUpdatePermission)
                     {
-                        <Button Color="Color.Primary" Size="ButtonSize.Small">
+                        <Button Color="Color.Primary" Size="Size.Small">
                             <NavLink href=@($"Clients/{item.Id}/Edit")>
                                 <Icon Name="@("fa-cog")" Style="color: white;"/>
                             </NavLink>
@@ -34,7 +34,7 @@
                     @if (haveDeletePermission)
                     {
                         <Button Color="Color.Danger"
-                                Size="ButtonSize.Small"
+                                Size="Size.Small"
                                 Clicked="async () => { await Delete(item.Id); }">
                             <Icon Name="IconName.Times"/>
                         </Button>
